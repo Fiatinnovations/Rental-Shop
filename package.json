@@ -1,0 +1,30 @@
+{
+    "name": "vidly",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "config": "^3.0.1",
+        "eslint": "^5.14.1",
+        "eslint-config-airbnb-base": "^13.1.0",
+        "express": "^4.16.4",
+        "fawn": "^2.1.5",
+        "helmet": "^3.15.1",
+        "joi": "^14.3.1",
+        "joi-objectid": "^2.0.0",
+        "mongodb": "^3.1.13",
+        "mongoose": "^5.4.16",
+        "morgan": "^1.9.1",
+        "prettier": "1.16.4",
+        "pug": "^2.0.3"
+    },
+    "devDependencies": {
+        "nodemon": "^1.18.10"
+    }
+}
