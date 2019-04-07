@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
-joi.objectId = require('joi-objectid')(joi);
+//Joi.objectId = require('joi-objectid')(Joi);
 
 
 const Schema = mongoose.Schema;
@@ -14,13 +14,13 @@ const UserSchema = new Schema({
 const User = mongoose.model('User', UserSchema);
 
 
-validateUser = (User) => {
+validateUser = (user) => {
     const schema = {
-        name: Joi.string().required().max(255),
+        name: Joi.string().required().min(5).max(255),
         email: Joi.string().email({ minDomainAtoms: 2 }).lowercase().required(),
-        password: Joi.string().required().regex(/^[a-zA-Z0-9]{3,30}$/)
+        password: Joi.string().required().min(5).max(255)
     }
-    return validate(User, schema);
+    return Joi.validate(user, schema);
 
 }
 

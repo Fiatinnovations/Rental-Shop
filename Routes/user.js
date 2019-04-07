@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { User, Validate } = require('../models/user');
+const _ = require('lodash');
+const bcrypt = require('bcrypt');
+
 
 router.get('/', async (req, res) => {
     try {
@@ -16,14 +19,16 @@ router.post('/', async (req, res) => {
     try {
         const { error } = Validate(req.body);
         if (error) res.status(400).send(error.details[0].message);
-        let user = await new User({
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password
-        });
+
+        let user = await User.findOne({ email: req.body.email });
+        if (user) res.status(400).send('User already Exits');
+        user = new User(_.pick(req.body, ['name', 'email', 'password']));
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
 
         user = await user.save();
-        res.send(user);
+        res.send(_.pick(user, ['_id', 'name', 'email']));
     } catch (error) {
         console.log(error);
 
@@ -46,11 +51,38 @@ router.get('/:id', async (req, res) => {
 
 
 router.put('/:id', async (req, res) => {
-    const { error } = validate(req.body);
-    if (error) res.status(400).status(error.details[0].message);
-    const user = await User.findById(req.params.id);
-    if (!user) res.status(404).send('user with ' + req.params.id + ' not found');
-    res.send(user);
+    try {
+        const { error } = Validate(req.body);
+        if (error) res.status(400).status(error.details[0].message);
+        const user = await User.findByIdAndUpdate(req.params.id,
+            {
+                name: req.body.name,
+                email: req.body.email,
+                password: req.body.password
+            }, { new: true });
+        if (!user) res.status(404).send('user with ' + req.params.id + ' not found');
+        res.send(user);
+    } catch (error) {
+        console.log(error);
+
+    }
+
 
 
 });
+
+router.delete('/:id', async (req, res) => {
+    const { error } = Validate(req.body);
+    if (error) res.status(400).send(error.details[0].message);
+    const user = await User.findByIdAndRemove(req.params.id);
+    if (!user) res.status(404).send('User does not exist');
+    // Use Lodash to specify the parameter to be displayed back to the user
+    res.send(_.pick(user, ['_id', 'name', 'email']));
+
+});
+
+module.exports = router;
+
+
+
+
