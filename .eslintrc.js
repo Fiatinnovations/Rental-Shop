@@ -18,5 +18,6 @@ module.exports = {
         'global-require': 0,
         'eslint linebreak-style': [0, 'error', 'windows'],
         'no-console': 'off',
+        "no-underscore-dangle": [2, { "allowAfterThis": true }]
     },
 }

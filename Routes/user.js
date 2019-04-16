@@ -1,8 +1,11 @@
+/* eslint-disable no-underscore-dangle */
 const express = require('express');
-const router = express.Router();
-const { User, Validate } = require('../models/user');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
+
+
+const router = express.Router();
+const { User, Validate } = require('../models/user');
 
 
 router.get('/', async (req, res) => {
@@ -28,7 +31,8 @@ router.post('/', async (req, res) => {
         user.password = await bcrypt.hash(user.password, salt);
 
         user = await user.save();
-        res.send(_.pick(user, ['_id', 'name', 'email']));
+        const token = user.generateAuthToken();
+        res.header('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email']));
     } catch (error) {
         console.log(error);
 
@@ -60,7 +64,7 @@ router.put('/:id', async (req, res) => {
                 email: req.body.email,
                 password: req.body.password
             }, { new: true });
-        if (!user) res.status(404).send('user with ' + req.params.id + ' not found');
+        if (!user) res.status(404).send('user with not found');
         res.send(user);
     } catch (error) {
         console.log(error);

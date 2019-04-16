@@ -1,7 +1,11 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-underscore-dangle */
+const express = require('express');
+
 const { Movie, validate } = require('../models/movie');
 const { Genre } = require('../models/genre');
-const mongoose = require('mongoose');
-const express = require('express');
+
+
 const router = express.Router();
 
 
@@ -18,6 +22,7 @@ router.get('/', async (req, res, ) => {
 
 })
 
+// eslint-disable-next-line consistent-return
 router.post('/', async (req, res) => {
     try {
         const { error } = validate(req.body);

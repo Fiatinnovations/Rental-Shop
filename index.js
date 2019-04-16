@@ -2,15 +2,26 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const express = require('express');
 const http = require('http');
+const config = require('config');
+const mongoose = require('mongoose');
 const genre = require('./Routes/genre');
 const customer = require('./Routes/customer');
 const movie = require('./Routes/movie');
 const rental = require('./Routes/rental');
 const user = require('./Routes/user');
 const auth = require('./Routes/auth');
+
+if (!config.get('jwtPrivateKey')) {
+    console.error('FATAL ERROR!!! JwtPrivateKey is not set');
+    process.exit(1);
+}
+
+
+
+
 const app = express();
 app.use(helmet());
-const mongoose = require('mongoose');
+
 mongoose
     .connect('mongodb://localhost/vidly', { useNewUrlParser: true })
     .then(() => console.log('connected to the database successfully'))
@@ -31,7 +42,7 @@ app.use('/api/rentals', rental);
 app.use('/api/users', user);
 app.use('/api/auth', auth);
 
-port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
 http.createServer(app).listen(port, () => {
     console.log(`Server listening on ${port}`);
