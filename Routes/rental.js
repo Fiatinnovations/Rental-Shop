@@ -1,14 +1,19 @@
-const { Validate, Rental } = require('../models/rental');
+/* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
+const express = require('express');
+const Fawn = require('fawn');
+const auth = require('../middleware/auth');
+
+const router = express.Router();
+const { Validate, Rental } = require('../models/rental');
 const { Customer } = require('../models/customer');
 const { Movie } = require('../models/movie');
-const express = require('express');
-const router = express.Router();
-const Fawn = require('fawn');
+
+
 Fawn.init(mongoose);
 
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     try {
         const rentals = await Rental.find();
         if (!rentals) res.status(400).send('No renatals yet');
@@ -20,7 +25,7 @@ router.get('/', async (req, res) => {
 
 });
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
 
     const { error } = Validate(req.body);
     if (error) res.status(400).send(error.details[0].message);
@@ -29,7 +34,7 @@ router.post('/', async (req, res) => {
     const movie = await Movie.findById(req.body.movieId);
     if (!movie) res.status(400).send('Movie ID is not available');
     if (movie.numberInStock === 0) res.status(400).send('Movie out of Stock');
-    let rental = new Rental({
+    const rental = new Rental({
         customer: {
             _id: customer._id,
             name: customer.name,
@@ -48,7 +53,7 @@ router.post('/', async (req, res) => {
             .update('movies', { _id: movie._id }, { $inc: { numberInStock: -1 } })
             .run();
         res.send(rental);
-    } catch (error) {
+    } catch (ex) {
         res.status(404).send(error);
 
     }
@@ -57,7 +62,7 @@ router.post('/', async (req, res) => {
 
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     try {
         const rental = await Rental.findById(req.params.id);
         if (!rental) res.status(404).send('Rental Id doesn not exist');
@@ -69,7 +74,7 @@ router.get('/:id', async (req, res) => {
 
 })
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     try {
         const { error } = Validate(req.body);
         if (error) res.status(400).send(error.details[0].message);
@@ -95,7 +100,7 @@ router.put('/:id', async (req, res) => {
             }, { new: true }
         );
 
-        if (!rental) res.status(404).send('Rental ' + req.params.id + ' does not exist ')
+        if (!rental) res.status(404).send(`Rental ${req.params.id} does not exist `)
         res.send(rental);
     } catch (error) {
         console.log(error);

@@ -2,13 +2,14 @@
 const express = require('express');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
+const auth = require('../middleware/auth');
 
 
 const router = express.Router();
 const { User, Validate } = require('../models/user');
 
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     try {
         const users = await User.find().sort('name');
         res.send(users);
@@ -41,9 +42,9 @@ router.post('/', async (req, res) => {
 
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/me', auth, async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
+        const user = await User.findById(req.user._id).select('-password');
         if (!user) res.status(404).send('User does not exist');
         res.send(user);
     } catch (error) {
@@ -54,7 +55,7 @@ router.get('/:id', async (req, res) => {
 });
 
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     try {
         const { error } = Validate(req.body);
         if (error) res.status(400).status(error.details[0].message);
@@ -75,7 +76,7 @@ router.put('/:id', async (req, res) => {
 
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     const { error } = Validate(req.body);
     if (error) res.status(400).send(error.details[0].message);
     const user = await User.findByIdAndRemove(req.params.id);

@@ -3,7 +3,7 @@ const Joi = require('joi');
 const { genreSchema } = require('./genre');
 Joi.objectId = require('joi-objectid')(Joi)
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const MovieSchema = new Schema({
     title: { type: String, min: 5, max: 250, required: true },

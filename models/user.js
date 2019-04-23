@@ -9,13 +9,14 @@ const { Schema } = mongoose;
 const UserSchema = new Schema({
     name: { type: String, required: true, max: 255, min: 5 },
     email: { type: String, trim: true, unique: true, lowercase: true, required: true },
+    isAdmin: { type: Boolean },
     password: { type: String, required: true }
 
 });
 
 // eslint-disable-next-line func-names
 UserSchema.methods.generateAuthToken = function () {
-    const token = jwt.sign({ _id: this._id }, config.get('jwtPrivateKey'));
+    const token = jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, config.get('jwtPrivateKey'));
     return token;
 
 }
@@ -23,8 +24,8 @@ UserSchema.methods.generateAuthToken = function () {
 const User = mongoose.model('User', UserSchema);
 
 
-// eslint-disable-next-line no-undef
-validateUser = (user) => {
+
+const validateUser = (user) => {
     const schema = {
         name: Joi.string().required().min(5).max(255),
         email: Joi.string().email({ minDomainAtoms: 2 }).lowercase().required(),
@@ -35,5 +36,5 @@ validateUser = (user) => {
 }
 
 exports.User = User;
-// eslint-disable-next-line no-undef
+
 exports.Validate = validateUser;

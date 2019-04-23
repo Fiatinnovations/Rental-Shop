@@ -1,12 +1,15 @@
 const express = require('express');
+const auth = require('../middleware/auth');
+
 const router = express.Router();
 const { Customer, Validate } = require('../models/customer');
-/**mongoose
+
+/** mongoose
     .connect('mongodb://localhost/customers', { useNewUrlParser: true })
     .then(() => console.log('successfully connected to the database'))
     .catch(error => console.log(error)); */
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
     try {
         const { error } = Validate(req.body);
         if (error) res.status(404).send(error.details[0].message);
@@ -23,7 +26,7 @@ router.post('/', async (req, res) => {
 });
 
 
-router.get('/', async (req, res) => {
+router.get('/', auth, async (req, res) => {
     try {
         const customers = await Customer.find().sort('name');
         res.send(customers);
@@ -32,12 +35,12 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     try {
         const customer = await Customer.findById(req.params.id);
         if (!customer)
             res.status(404).send(
-                'There is no Customer by this ' + req.params.id
+                `There is no Customer by this ${req.params.id}`
             );
         res.send(customer);
     } catch (error) {
@@ -45,7 +48,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
     try {
         const { error } = Validate(req.body);
         if (error) res.status(404).send(error.details[0].message);
@@ -65,12 +68,12 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     try {
         const customer = await Customer.findByIdAndRemove(req.params.id);
         if (!customer)
             res.status(404).send(
-                'There is no Customer by this ' + req.params.id
+                `There is no Customer by this ' ${req.params.id} `
             );
         res.send(customer);
     } catch (error) {
